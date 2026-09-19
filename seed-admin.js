@@ -18,14 +18,19 @@ const seedAdmin = async () => {
         await mongoose.connect(process.env.MONGO_URI);
         console.log("MongoDB connected for seeding.");
 
-        const adminEmail = "admin@hostel.com";
-        const existingAdmin = await User.findOne({ email: adminEmail });
+        const adminEmail = process.env.ADMIN_EMAIL || "admin@hostel.com";
+        const adminPassword = process.env.ADMIN_PASSWORD || "admin123";
 
-        if (existingAdmin) {
-            console.log(`Admin user already exists: ${adminEmail}`);
+        let adminUser = await User.findOne({ email: adminEmail });
+
+        if (adminUser) {
+            adminUser.role = "admin";
+            adminUser.password = await bcrypt.hash(adminPassword, 10);
+            await adminUser.save();
+            console.log(`Admin user verified and updated: ${adminEmail}`);
         } else {
-            const hashedPassword = await bcrypt.hash("admin123", 10);
-            const adminUser = new User({
+            const hashedPassword = await bcrypt.hash(adminPassword, 10);
+            adminUser = new User({
                 name: "Hostel Warden",
                 email: adminEmail,
                 password: hashedPassword,
@@ -34,8 +39,7 @@ const seedAdmin = async () => {
 
             await adminUser.save();
             console.log("Admin account created successfully!");
-            console.log("Email: admin@hostel.com");
-            console.log("Password: admin123");
+            console.log(`Email: ${adminEmail}`);
             console.log("Role: admin");
         }
 
