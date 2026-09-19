@@ -1,0 +1,51 @@
+<%- include("partials/header", { title: "Home" }) %>
+
+<!-- Home Page Hero Section -->
+<div class="hero-card">
+    <h1 class="hero-title">Hostel Room Allotment & Mess Management</h1>
+    <p class="hero-subtitle">
+        A centralized portal for college students and hostel wardens. Manage room allotment requests,
+        view daily mess menus, submit meal feedback, and report room maintenance issues seamlessly.
+    </p>
+
+    <% if (typeof user === 'undefined' || !user) { %>
+        <div class="hero-actions">
+            <a href="/login" class="btn btn-primary">Login to Account</a>
+            <a href="/register" class="btn btn-secondary">Student Registration</a>
+        </div>
+    <% } else if (user.role === 'student') { %>
+        <div class="hero-actions">
+            <a href="/student/dashboard" class="btn btn-primary">Go to Student Dashboard</a>
+            <a href="/student/room" class="btn btn-secondary">View My Room</a>
+        </div>
+    <% } else if (user.role === 'admin') { %>
+        <div class="hero-actions">
+            <a href="/admin/dashboard" class="btn btn-primary">Go to Warden Dashboard</a>
+            <a href="/admin/rooms" class="btn btn-secondary">Manage Rooms</a>
+        </div>
+    <% } %>
+</div>
+
+<!-- Quick Feature Highlights -->
+<div class="grid-3" style="margin-top: 2rem;">
+    <div class="card">
+        <h3 class="card-title">🛏️ Room Allotment</h3>
+        <p style="color: #64748b; margin-top: 0.5rem; font-size: 0.9rem; line-height: 1.5;">
+            Browse available hostel blocks, request room allotments or room changes, and vacate rooms smoothly.
+        </p>
+    </div>
+    <div class="card">
+        <h3 class="card-title">🍽️ Mess & Daily Menu</h3>
+        <p style="color: #64748b; margin-top: 0.5rem; font-size: 0.9rem; line-height: 1.5;">
+            Check daily menus for breakfast, lunch, evening snacks, and dinner updated regularly by the hostel mess.
+        </p>
+    </div>
+    <div class="card">
+        <h3 class="card-title">📝 Feedback & Maintenance</h3>
+        <p style="color: #64748b; margin-top: 0.5rem; font-size: 0.9rem; line-height: 1.5;">
+            Submit meal ratings and raise room maintenance tickets with real-time tracking of approval status.
+        </p>
+    </div>
+</div>
+
+<%- include("partials/footer") %>

@@ -1,0 +1,128 @@
+<%- include("../partials/header", { title: "Manage Rooms" }) %>
+
+<div class="card">
+    <div class="card-header">
+        <h1 class="card-title">Hostel Rooms Management</h1>
+        <a href="/admin/blocks" class="btn btn-outline btn-sm">&larr; Manage Blocks</a>
+    </div>
+
+    <!-- Feedback Alerts -->
+    <% if (typeof error !== 'undefined' && error) { %>
+        <div class="alert alert-danger">
+            <%= error %>
+        </div>
+    <% } %>
+
+    <% if (typeof success !== 'undefined' && success) { %>
+        <div class="alert alert-success">
+            <%= success %>
+        </div>
+    <% } %>
+
+    <!-- Add Room Form -->
+    <div style="background-color: #f8fafc; padding: 1.25rem; border-radius: 8px; border: 1px solid #e2e8f0; margin-bottom: 2rem;">
+        <h3 style="font-size: 1.1rem; color: #1e3a8a; margin-bottom: 1rem;">➕ Add New Room</h3>
+        
+        <% if (blocks.length === 0) { %>
+            <p style="color: #b91c1c;">⚠️ No hostel blocks found. Please <a href="/admin/blocks" style="font-weight: 600; text-decoration: underline;">create a block first</a> before adding rooms.</p>
+        <% } else { %>
+            <form action="/admin/rooms" method="POST" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)) auto; gap: 1rem; align-items: end;">
+                <div class="form-group" style="margin-bottom: 0;">
+                    <label for="block">Select Block</label>
+                    <select id="block" name="block" class="form-control" required>
+                        <option value="">-- Choose Block --</option>
+                        <% blocks.forEach(b => { %>
+                            <option value="<%= b._id %>"><%= b.name %></option>
+                        <% }); %>
+                    </select>
+                </div>
+
+                <div class="form-group" style="margin-bottom: 0;">
+                    <label for="roomNumber">Room Number</label>
+                    <input type="text" id="roomNumber" name="roomNumber" class="form-control" placeholder="e.g. 101, A-204" required>
+                </div>
+
+                <div class="form-group" style="margin-bottom: 0;">
+                    <label for="type">Room Type</label>
+                    <select id="type" name="type" class="form-control" onchange="updateCapacityDefault(this.value)" required>
+                        <option value="Single">Single (1 Bed)</option>
+                        <option value="Double" selected>Double (2 Beds)</option>
+                        <option value="Triple">Triple (3 Beds)</option>
+                    </select>
+                </div>
+
+                <div class="form-group" style="margin-bottom: 0;">
+                    <label for="capacity">Capacity (Beds)</label>
+                    <input type="number" id="capacity" name="capacity" class="form-control" min="1" value="2" required>
+                </div>
+
+                <button type="submit" class="btn btn-primary" style="height: 42px;">Add Room</button>
+            </form>
+        <% } %>
+    </div>
+
+    <!-- Rooms Table -->
+    <h3 style="font-size: 1.1rem; color: #1e3a8a; margin-bottom: 0.75rem;">Existing Rooms</h3>
+    <% if (rooms.length === 0) { %>
+        <p style="color: #64748b; font-style: italic;">No rooms created yet. Add rooms using the form above.</p>
+    <% } else { %>
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Block</th>
+                        <th>Room No</th>
+                        <th>Type</th>
+                        <th>Capacity</th>
+                        <th>Occupied</th>
+                        <th>Vacant Beds</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% rooms.forEach(room => { %>
+                        <% const vacant = room.capacity - room.occupied; %>
+                        <tr>
+                            <td><strong><%= room.block ? room.block.name : 'Unknown Block' %></strong></td>
+                            <td><%= room.roomNumber %></td>
+                            <td><span class="badge" style="background-color: #f1f5f9; color: #334155; border: 1px solid #cbd5e1;"><%= room.type %></span></td>
+                            <td><%= room.capacity %></td>
+                            <td>
+                                <% if (room.occupied === 0) { %>
+                                    <span style="color: #64748b;">0</span>
+                                <% } else { %>
+                                    <span style="color: #1e3a8a; font-weight: 600;"><%= room.occupied %></span>
+                                <% } %>
+                            </td>
+                            <td>
+                                <% if (vacant <= 0) { %>
+                                    <span class="badge badge-rejected">Full</span>
+                                <% } else { %>
+                                    <span class="badge badge-approved"><%= vacant %> Available</span>
+                                <% } %>
+                            </td>
+                            <td>
+                                <a href="/admin/rooms/<%= room._id %>/edit" class="btn btn-outline btn-sm" style="margin-right: 0.25rem;">Edit</a>
+                                <form action="/admin/rooms/<%= room._id %>/delete" method="POST" style="display: inline;" onsubmit="return confirm('Are you sure you want to delete Room <%= room.roomNumber %>?');">
+                                    <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                                </form>
+                            </td>
+                        </tr>
+                    <% }); %>
+                </tbody>
+            </table>
+        </div>
+    <% } %>
+</div>
+
+<script>
+    // Automatically set default capacity when room type dropdown changes
+    function updateCapacityDefault(type) {
+        const capacityInput = document.getElementById("capacity");
+        if (type === "Single") capacityInput.value = 1;
+        else if (type === "Double") capacityInput.value = 2;
+        else if (type === "Triple") capacityInput.value = 3;
+    }
+</script>
+
+<%- include("../partials/footer") %>

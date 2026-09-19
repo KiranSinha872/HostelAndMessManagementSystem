@@ -1,0 +1,192 @@
+<%- include("../partials/header", { title: "Student Requests" }) %>
+
+<div class="card">
+    <div class="card-header">
+        <h1 class="card-title">Student Requests & Tickets</h1>
+        <span class="badge" style="background-color: #f1f5f9; color: #475569; border: 1px solid #cbd5e1;">
+            Total: <%= requests.length %>
+        </span>
+    </div>
+
+    <!-- Feedback Alerts -->
+    <% if (typeof error !== 'undefined' && error) { %>
+        <div class="alert alert-danger">
+            <%= error %>
+        </div>
+    <% } %>
+
+    <% if (typeof success !== 'undefined' && success) { %>
+        <div class="alert alert-success">
+            <%= success %>
+        </div>
+    <% } %>
+
+    <!-- Filter Bar -->
+    <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 1rem; margin-bottom: 1.5rem; display: flex; flex-wrap: wrap; gap: 1.5rem; align-items: center;">
+        <div>
+            <strong style="font-size: 0.85rem; color: #475569; text-transform: uppercase; margin-right: 0.5rem;">Status:</strong>
+            <a href="/admin/requests?type=<%= currentType %>" class="btn btn-sm <%= currentStatus === 'all' ? 'btn-primary' : 'btn-outline' %>">All</a>
+            <a href="/admin/requests?status=pending&type=<%= currentType %>" class="btn btn-sm <%= currentStatus === 'pending' ? 'btn-primary' : 'btn-outline' %>">Pending</a>
+            <a href="/admin/requests?status=approved&type=<%= currentType %>" class="btn btn-sm <%= currentStatus === 'approved' ? 'btn-primary' : 'btn-outline' %>">Approved</a>
+            <a href="/admin/requests?status=resolved&type=<%= currentType %>" class="btn btn-sm <%= currentStatus === 'resolved' ? 'btn-primary' : 'btn-outline' %>">Resolved</a>
+            <a href="/admin/requests?status=rejected&type=<%= currentType %>" class="btn btn-sm <%= currentStatus === 'rejected' ? 'btn-primary' : 'btn-outline' %>">Rejected</a>
+        </div>
+
+        <div>
+            <strong style="font-size: 0.85rem; color: #475569; text-transform: uppercase; margin-right: 0.5rem;">Type:</strong>
+            <a href="/admin/requests?status=<%= currentStatus %>" class="btn btn-sm <%= currentType === 'all' ? 'btn-primary' : 'btn-outline' %>">All</a>
+            <a href="/admin/requests?status=<%= currentStatus %>&type=room_request" class="btn btn-sm <%= currentType === 'room_request' ? 'btn-primary' : 'btn-outline' %>">Room Allotment</a>
+            <a href="/admin/requests?status=<%= currentStatus %>&type=room_change" class="btn btn-sm <%= currentType === 'room_change' ? 'btn-primary' : 'btn-outline' %>">Room Change</a>
+            <a href="/admin/requests?status=<%= currentStatus %>&type=maintenance" class="btn btn-sm <%= currentType === 'maintenance' ? 'btn-primary' : 'btn-outline' %>">Maintenance</a>
+        </div>
+    </div>
+
+    <!-- Requests Table -->
+    <% if (requests.length === 0) { %>
+        <p style="color: #64748b; font-style: italic; padding: 2rem; text-align: center;">No requests matching the selected filters.</p>
+    <% } else { %>
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Student</th>
+                        <th>Type</th>
+                        <th>Description / Details</th>
+                        <th>Date</th>
+                        <th>Status</th>
+                        <th>Warden Action / Remark</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% requests.forEach(reqItem => { %>
+                        <tr>
+                            <td>
+                                <strong><%= reqItem.student ? reqItem.student.name : 'Unknown Student' %></strong>
+                                <br>
+                                <small style="color: #64748b;"><%= reqItem.student ? reqItem.student.email : '' %></small>
+                                <% if (reqItem.student && reqItem.student.room) { %>
+                                    <br>
+                                    <small style="color: #1e40af; font-size: 0.8rem;">
+                                        🏠 Room <%= reqItem.student.room.roomNumber %> (<%= reqItem.student.room.block ? reqItem.student.room.block.name : '' %>)
+                                    </small>
+                                <% } %>
+                            </td>
+
+                            <td>
+                                <% if (reqItem.type === 'room_request') { %>
+                                    <span class="badge" style="background-color: #e0f2fe; color: #0369a1; border: 1px solid #bae6fd;">Room Allotment</span>
+                                <% } else if (reqItem.type === 'room_change') { %>
+                                    <span class="badge" style="background-color: #f3e8ff; color: #7e22ce; border: 1px solid #e9d5ff;">Room Change</span>
+                                <% } else { %>
+                                    <span class="badge" style="background-color: #ffedd5; color: #c2410c; border: 1px solid #fed7aa;">Maintenance</span>
+                                <% } %>
+                            </td>
+
+                            <td style="max-width: 250px;">
+                                <p style="margin: 0; font-size: 0.9rem;"><%= reqItem.description || '-' %></p>
+                            </td>
+
+                            <td style="white-space: nowrap; font-size: 0.85rem; color: #64748b;">
+                                <%= new Date(reqItem.createdAt).toLocaleDateString() %>
+                            </td>
+
+                            <td>
+                                <% if (reqItem.status === 'pending') { %>
+                                    <span class="badge badge-pending">Pending</span>
+                                <% } else if (reqItem.status === 'approved') { %>
+                                    <span class="badge badge-approved">Approved</span>
+                                <% } else if (reqItem.status === 'resolved') { %>
+                                    <span class="badge badge-resolved">Resolved</span>
+                                <% } else { %>
+                                    <span class="badge badge-rejected">Rejected</span>
+                                <% } %>
+                            </td>
+
+                            <td style="min-width: 290px;">
+                                <% if (reqItem.status === 'pending') { %>
+                                    <div style="background-color: #ffffff; padding: 0.75rem; border: 1px solid #e2e8f0; border-radius: 6px;">
+
+                                        <!-- CASE 1: ROOM ALLOTMENT -->
+                                        <% if (reqItem.type === 'room_request') { %>
+                                            <% if (availableRooms.length === 0) { %>
+                                                <p style="color: #dc2626; font-size: 0.85rem; margin-bottom: 0.5rem;">⚠️ No rooms with available beds!</p>
+                                            <% } else { %>
+                                                <form action="/admin/requests/<%= reqItem._id %>/approve" method="POST" style="margin-bottom: 0.6rem;">
+                                                    <div style="margin-bottom: 0.4rem;">
+                                                        <select name="roomId" class="form-control" style="font-size: 0.85rem; padding: 0.4rem;" required>
+                                                            <option value="">-- Choose Room with Space --</option>
+                                                            <% availableRooms.forEach(room => { %>
+                                                                <option value="<%= room._id %>">
+                                                                    <%= room.block ? room.block.name : 'Block' %> - <%= room.roomNumber %> (<%= room.occupied %>/<%= room.capacity %> filled)
+                                                                </option>
+                                                            <% }); %>
+                                                        </select>
+                                                    </div>
+                                                    <div style="display: flex; gap: 0.4rem;">
+                                                        <input type="text" name="adminRemark" class="form-control" style="font-size: 0.85rem; padding: 0.35rem;" placeholder="Remark (optional)">
+                                                        <button type="submit" class="btn btn-success btn-sm" style="white-space: nowrap;">Approve</button>
+                                                    </div>
+                                                </form>
+                                            <% } %>
+
+                                        <!-- CASE 2: ROOM CHANGE (Excludes Student's Current Room) -->
+                                        <% } else if (reqItem.type === 'room_change') { %>
+                                            <% 
+                                                const studentCurrentRoomId = reqItem.student && reqItem.student.room ? reqItem.student.room._id.toString() : null;
+                                                const changeOptions = availableRooms.filter(r => r._id.toString() !== studentCurrentRoomId);
+                                            %>
+                                            <% if (changeOptions.length === 0) { %>
+                                                <p style="color: #dc2626; font-size: 0.85rem; margin-bottom: 0.5rem;">⚠️ No other rooms with available space!</p>
+                                            <% } else { %>
+                                                <form action="/admin/requests/<%= reqItem._id %>/approve" method="POST" style="margin-bottom: 0.6rem;">
+                                                    <div style="margin-bottom: 0.4rem;">
+                                                        <select name="roomId" class="form-control" style="font-size: 0.85rem; padding: 0.4rem;" required>
+                                                            <option value="">-- Transfer to New Room --</option>
+                                                            <% changeOptions.forEach(room => { %>
+                                                                <option value="<%= room._id %>">
+                                                                    <%= room.block ? room.block.name : 'Block' %> - <%= room.roomNumber %> (<%= room.occupied %>/<%= room.capacity %> filled)
+                                                                </option>
+                                                            <% }); %>
+                                                        </select>
+                                                    </div>
+                                                    <div style="display: flex; gap: 0.4rem;">
+                                                        <input type="text" name="adminRemark" class="form-control" style="font-size: 0.85rem; padding: 0.35rem;" placeholder="Remark (optional)">
+                                                        <button type="submit" class="btn btn-success btn-sm" style="white-space: nowrap;">Change Room</button>
+                                                    </div>
+                                                </form>
+                                            <% } %>
+
+                                        <!-- CASE 3: MAINTENANCE -->
+                                        <% } else if (reqItem.type === 'maintenance') { %>
+                                            <form action="/admin/requests/<%= reqItem._id %>/resolve" method="POST" style="margin-bottom: 0.6rem; display: flex; gap: 0.4rem;">
+                                                <input type="text" name="adminRemark" class="form-control" style="font-size: 0.85rem; padding: 0.35rem;" placeholder="Repair note (optional)">
+                                                <button type="submit" class="btn btn-success btn-sm" style="white-space: nowrap;">Mark Resolved</button>
+                                            </form>
+                                        <% } %>
+
+                                        <!-- REJECT BUTTON (Available for all pending requests) -->
+                                        <form action="/admin/requests/<%= reqItem._id %>/reject" method="POST" style="display: flex; gap: 0.4rem;">
+                                            <input type="text" name="adminRemark" class="form-control" style="font-size: 0.85rem; padding: 0.35rem;" placeholder="Reason for rejection" required>
+                                            <button type="submit" class="btn btn-danger btn-sm" style="white-space: nowrap;">Reject</button>
+                                        </form>
+                                    </div>
+                                <% } else { %>
+                                    <!-- Already Processed Notice -->
+                                    <div style="font-size: 0.88rem;">
+                                        <% if (reqItem.adminRemark) { %>
+                                            <strong style="color: #475569;">Remark:</strong> <%= reqItem.adminRemark %>
+                                        <% } else { %>
+                                            <span style="color: #94a3b8; font-style: italic;">Processed</span>
+                                        <% } %>
+                                    </div>
+                                <% } %>
+                            </td>
+                        </tr>
+                    <% }); %>
+                </tbody>
+            </table>
+        </div>
+    <% } %>
+</div>
+
+<%- include("../partials/footer") %>

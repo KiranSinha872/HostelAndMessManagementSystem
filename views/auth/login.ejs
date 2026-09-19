@@ -1,0 +1,50 @@
+<%- include("../partials/header", { title: "Login" }) %>
+
+<!-- Login Form Card -->
+<div class="card" style="max-width: 460px; margin: 2rem auto;">
+    <div class="card-header">
+        <h2 class="card-title">Account Login</h2>
+    </div>
+
+    <!-- Error Message Alert -->
+    <% if (typeof error !== 'undefined' && error) { %>
+        <div class="alert alert-danger">
+            <%= error %>
+        </div>
+    <% } %>
+
+    <form action="/login" method="POST">
+        <div class="form-group">
+            <label for="email">Email Address</label>
+            <input 
+                type="email" 
+                id="email" 
+                name="email" 
+                class="form-control" 
+                placeholder="name@college.edu" 
+                value="<%= typeof values !== 'undefined' && values.email ? values.email : '' %>" 
+                required
+            >
+        </div>
+
+        <div class="form-group">
+            <label for="password">Password</label>
+            <input 
+                type="password" 
+                id="password" 
+                name="password" 
+                class="form-control" 
+                placeholder="Enter your password" 
+                required
+            >
+        </div>
+
+        <button type="submit" class="btn btn-primary" style="width: 100%;">Sign In</button>
+    </form>
+
+    <p style="margin-top: 1.5rem; text-align: center; font-size: 0.9rem; color: #64748b;">
+        New student? <a href="/register" style="color: #2563eb; font-weight: 600;">Register an account</a>
+    </p>
+</div>
+
+<%- include("../partials/footer") %>

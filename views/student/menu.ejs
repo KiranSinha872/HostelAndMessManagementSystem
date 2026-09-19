@@ -1,0 +1,54 @@
+<%- include("../partials/header", { title: "Mess Menu" }) %>
+
+<div class="card">
+    <div class="card-header">
+        <h1 class="card-title">Weekly Mess Menu</h1>
+        <a href="/student/feedback" class="btn btn-outline btn-sm">Submit Meal Feedback &rarr;</a>
+    </div>
+
+    <p style="color: #64748b; margin-bottom: 1.5rem;">
+        View the full weekly meal schedule provided by the college hostel mess. Today is <strong><%= today %></strong>.
+    </p>
+
+    <div class="table-responsive">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th style="width: 14%;">Day</th>
+                    <th style="width: 21.5%;">🍳 Breakfast</th>
+                    <th style="width: 21.5%;">🍛 Lunch</th>
+                    <th style="width: 21.5%;">☕ Snacks</th>
+                    <th style="width: 21.5%;">🍲 Dinner</th>
+                </tr>
+            </thead>
+            <tbody>
+                <% weekMenu.forEach(item => { %>
+                    <% const isToday = item.day === today; %>
+                    <tr style="<%= isToday ? 'background-color: #fefce8; border-left: 4px solid #facc15;' : '' %>">
+                        <td>
+                            <strong><%= item.day %></strong>
+                            <% if (isToday) { %>
+                                <br>
+                                <span class="badge badge-pending" style="font-size: 0.7rem; padding: 0.15rem 0.45rem;">Today</span>
+                            <% } %>
+                        </td>
+                        <td>
+                            <%= item.breakfast || '-' %>
+                        </td>
+                        <td>
+                            <%= item.lunch || '-' %>
+                        </td>
+                        <td>
+                            <%= item.snacks || '-' %>
+                        </td>
+                        <td>
+                            <%= item.dinner || '-' %>
+                        </td>
+                    </tr>
+                <% }); %>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<%- include("../partials/footer") %>

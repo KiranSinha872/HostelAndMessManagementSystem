@@ -1,0 +1,95 @@
+<%- include("../partials/header", { title: "Manage Mess Menu" }) %>
+
+<div class="card">
+    <div class="card-header">
+        <h1 class="card-title">Weekly Mess Menu Management</h1>
+        <a href="/admin/feedback" class="btn btn-outline btn-sm">View Student Feedback &rarr;</a>
+    </div>
+
+    <!-- Feedback Alerts -->
+    <% if (typeof error !== 'undefined' && error) { %>
+        <div class="alert alert-danger">
+            <%= error %>
+        </div>
+    <% } %>
+
+    <% if (typeof success !== 'undefined' && success) { %>
+        <div class="alert alert-success">
+            <%= success %>
+        </div>
+    <% } %>
+
+    <p style="color: #64748b; margin-bottom: 1.5rem;">
+        Update the meal schedule for the hostel mess. Enter dishes for each of the four daily meals and click <strong>Publish Weekly Menu</strong> to update student dashboards.
+    </p>
+
+    <!-- Weekly Menu Form -->
+    <form action="/admin/menu" method="POST">
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th style="width: 14%;">Day</th>
+                        <th style="width: 21.5%;">🍳 Breakfast</th>
+                        <th style="width: 21.5%;">🍛 Lunch</th>
+                        <th style="width: 21.5%;">☕ Snacks</th>
+                        <th style="width: 21.5%;">🍲 Dinner</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% weekMenu.forEach(item => { %>
+                        <tr>
+                            <td>
+                                <strong><%= item.day %></strong>
+                            </td>
+                            <td>
+                                <input 
+                                    type="text" 
+                                    name="breakfast_<%= item.day %>" 
+                                    class="form-control" 
+                                    value="<%= item.breakfast %>" 
+                                    placeholder="e.g. Poha, Tea, Boiled Eggs"
+                                >
+                            </td>
+                            <td>
+                                <input 
+                                    type="text" 
+                                    name="lunch_<%= item.day %>" 
+                                    class="form-control" 
+                                    value="<%= item.lunch %>" 
+                                    placeholder="e.g. Rice, Dal Tadka, Paneer"
+                                >
+                            </td>
+                            <td>
+                                <input 
+                                    type="text" 
+                                    name="snacks_<%= item.day %>" 
+                                    class="form-control" 
+                                    value="<%= item.snacks %>" 
+                                    placeholder="e.g. Samosa, Chai, Biscuits"
+                                >
+                            </td>
+                            <td>
+                                <input 
+                                    type="text" 
+                                    name="dinner_<%= item.day %>" 
+                                    class="form-control" 
+                                    value="<%= item.dinner %>" 
+                                    placeholder="e.g. Roti, Mix Veg, Kheer"
+                                >
+                            </td>
+                        </tr>
+                    <% }); %>
+                </tbody>
+            </table>
+        </div>
+
+        <div style="margin-top: 1.5rem; text-align: right;">
+            <button type="submit" class="btn btn-primary" style="padding: 0.75rem 2rem; font-size: 1rem;">
+                📢 Publish Weekly Menu
+            </button>
+        </div>
+    </form>
+</div>
+
+<%- include("../partials/footer") %>

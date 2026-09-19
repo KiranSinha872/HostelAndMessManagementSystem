@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= typeof title !== 'undefined' ? title + ' - ' : '' %>Hostel & Mess Management</title>
+    <!-- Main Stylesheet -->
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <!-- Top Navigation Bar -->
+    <nav class="navbar">
+        <div class="nav-brand">
+            <a href="/">🏢 Hostel & Mess System</a>
+        </div>
+
+        <ul class="nav-links">
+            <li><a href="/">Home</a></li>
+
+            <% if (typeof user === 'undefined' || !user) { %>
+                <!-- Logged Out Links -->
+                <li><a href="/login">Login</a></li>
+                <li><a href="/register">Register</a></li>
+            <% } else if (user.role === 'student') { %>
+                <!-- Student Navigation Links -->
+                <li><a href="/student/dashboard">Dashboard</a></li>
+                <li><a href="/student/room">My Room</a></li>
+                <li><a href="/student/requests">Requests</a></li>
+                <li><a href="/student/menu">Mess Menu</a></li>
+                <li><a href="/student/feedback">Feedback</a></li>
+                <li><span class="nav-badge">Student</span></li>
+                <li><a href="/logout">Logout (<%= user.name || 'User' %>)</a></li>
+            <% } else if (user.role === 'admin') { %>
+                <!-- Admin (Warden) Navigation Links -->
+                <li><a href="/admin/dashboard">Dashboard</a></li>
+                <li><a href="/admin/blocks">Blocks</a></li>
+                <li><a href="/admin/rooms">Rooms</a></li>
+                <li><a href="/admin/requests">Requests</a></li>
+                <li><a href="/admin/students">Students</a></li>
+                <li><a href="/admin/menu">Menu</a></li>
+                <li><a href="/admin/feedback">Feedback</a></li>
+                <li><span class="nav-badge" style="background-color: #f59e0b;">Warden</span></li>
+                <li><a href="/logout">Logout (<%= user.name || 'Admin' %>)</a></li>
+            <% } %>
+        </ul>
+    </nav>
+    <main class="container">

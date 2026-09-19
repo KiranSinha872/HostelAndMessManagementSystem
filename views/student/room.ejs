@@ -1,0 +1,106 @@
+<%- include("../partials/header", { title: "My Room Allotment" }) %>
+
+<div class="card">
+    <div class="card-header">
+        <h1 class="card-title">My Room Allotment</h1>
+        <% if (room) { %>
+            <span class="badge badge-approved">Allotted</span>
+        <% } else if (pendingRequest) { %>
+            <span class="badge badge-pending">Request Pending</span>
+        <% } else { %>
+            <span class="badge badge-rejected">Not Allotted</span>
+        <% } %>
+    </div>
+
+    <!-- Feedback Alerts -->
+    <% if (typeof error !== 'undefined' && error) { %>
+        <div class="alert alert-danger">
+            <%= error %>
+        </div>
+    <% } %>
+
+    <% if (typeof success !== 'undefined' && success) { %>
+        <div class="alert alert-success">
+            <%= success %>
+        </div>
+    <% } %>
+
+    <% if (room) { %>
+        <!-- Allotted Room Details -->
+        <div class="grid-2" style="margin-top: 1rem;">
+            <div style="background-color: #f8fafc; padding: 1.5rem; border-radius: 8px; border: 1px solid #e2e8f0;">
+                <h3 style="color: #1e3a8a; margin-bottom: 1rem; font-size: 1.15rem;">🛏️ Room Specifications</h3>
+                <p style="margin-bottom: 0.6rem;"><strong>Hostel Block:</strong> <%= room.block ? room.block.name : 'N/A' %></p>
+                <p style="margin-bottom: 0.6rem;"><strong>Room Number:</strong> <%= room.roomNumber %></p>
+                <p style="margin-bottom: 0.6rem;"><strong>Room Type:</strong> <%= room.type %></p>
+                <p style="margin-bottom: 0.6rem;"><strong>Capacity:</strong> <%= room.capacity %> Bed<%= room.capacity === 1 ? '' : 's' %></p>
+                <p style="margin-bottom: 0.6rem;"><strong>Current Occupants:</strong> <%= room.occupied %> / <%= room.capacity %></p>
+            </div>
+
+            <div style="background-color: #f8fafc; padding: 1.5rem; border-radius: 8px; border: 1px solid #e2e8f0;">
+                <h3 style="color: #1e3a8a; margin-bottom: 1rem; font-size: 1.15rem;">👥 Roommates</h3>
+                <% if (roommates.length === 0) { %>
+                    <p style="color: #64748b; font-style: italic;">No roommates currently assigned. You are the only resident in this room.</p>
+                <% } else { %>
+                    <ul style="list-style: none; padding: 0;">
+                        <% roommates.forEach(mate => { %>
+                            <li style="padding: 0.5rem 0; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between;">
+                                <strong><%= mate.name %></strong>
+                                <span style="color: #64748b; font-size: 0.9rem;"><%= mate.email %></span>
+                            </li>
+                        <% }); %>
+                    </ul>
+                <% } %>
+            </div>
+        </div>
+
+        <!-- Vacate Room Option -->
+        <div style="margin-top: 2rem; padding: 1.25rem; background-color: #fff1f2; border: 1px solid #fecdd3; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; flex-wrap: gap;">
+            <div>
+                <h4 style="color: #9f1239; margin-bottom: 0.25rem;">Vacate this Room</h4>
+                <p style="color: #64748b; font-size: 0.9rem;">Release your bed and return the key to the warden office.</p>
+            </div>
+            <form action="/student/room/vacate" method="POST" onsubmit="return confirm('Are you sure you want to vacate your room? This will free your bed immediately.');">
+                <button type="submit" class="btn btn-danger">Vacate Room</button>
+            </form>
+        </div>
+
+    <% } else if (pendingRequest) { %>
+        <!-- Pending Room Request Notice -->
+        <div style="background-color: #fefce8; border: 1px solid #fef08a; padding: 1.5rem; border-radius: 8px; margin-top: 1rem;">
+            <h3 style="color: #854d0e; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem;">
+                ⏳ Room Allotment Request Pending
+            </h3>
+            <p style="color: #713f12; margin-bottom: 0.75rem;">
+                Your room allotment request was submitted on <strong><%= new Date(pendingRequest.createdAt).toLocaleDateString() %></strong> and is currently being processed by the hostel warden.
+            </p>
+            <p style="color: #64748b; font-size: 0.9rem;">
+                <strong>Your preference note:</strong> "<%= pendingRequest.description || 'Standard allotment' %>"
+            </p>
+        </div>
+
+    <% } else { %>
+        <!-- No Room Allotted & Can Request -->
+        <div style="text-align: center; padding: 2rem 1rem; background-color: #f8fafc; border-radius: 8px; border: 1px solid #e2e8f0; margin-top: 1rem;">
+            <h3 style="color: #1e3a8a; margin-bottom: 0.5rem;">No Room Allotted Yet</h3>
+            <p style="color: #64748b; max-width: 500px; margin: 0 auto 1.5rem auto;">
+                You do not currently have a hostel room assigned. Submit a room allotment request below to apply for a bed.
+            </p>
+
+            <form action="/student/room/request" method="POST" style="max-width: 500px; margin: 0 auto; text-align: left;">
+                <div class="form-group">
+                    <label for="description">Preferences / Special Remarks (Optional)</label>
+                    <textarea 
+                        id="description" 
+                        name="description" 
+                        class="form-control" 
+                        placeholder="e.g. Prefer Ground floor / quiet wing / Double room if available"
+                    ></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary" style="width: 100%;">Submit Room Request</button>
+            </form>
+        </div>
+    <% } %>
+</div>
+
+<%- include("../partials/footer") %>

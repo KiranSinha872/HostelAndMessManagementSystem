@@ -1,0 +1,156 @@
+<%- include("../partials/header", { title: "Warden Dashboard" }) %>
+
+<!-- Warden Dashboard Welcome Banner -->
+<div class="card" style="margin-bottom: 2rem;">
+    <div class="card-header">
+        <h1 class="card-title">Warden Overview Dashboard</h1>
+        <span class="badge" style="background-color: #fef3c7; color: #b45309; border: 1px solid #fde68a;">Hostel Administration</span>
+    </div>
+    <h2 style="font-size: 1.4rem; color: #1e3a8a; margin-bottom: 0.5rem;">
+        Welcome back, <%= user.name %>! 🛡️
+    </h2>
+    <p style="color: #64748b;">
+        Here is the live status of all hostel blocks, room allotments, bed occupancy, and incoming student requests.
+    </p>
+</div>
+
+<!-- 4 Key Stat Cards -->
+<div class="grid-2" style="grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 1.25rem; margin-bottom: 2rem;">
+    <!-- Total Beds -->
+    <div class="card" style="margin-bottom: 0; text-align: center; border-top: 4px solid #3b82f6;">
+        <span style="font-size: 0.85rem; color: #64748b; font-weight: 600; text-transform: uppercase;">Total Beds</span>
+        <div style="font-size: 2.25rem; font-weight: 700; color: #1e3a8a; margin: 0.35rem 0;">
+            <%= totalBeds %>
+        </div>
+        <small style="color: #64748b;">Across all active rooms</small>
+    </div>
+
+    <!-- Occupied Beds -->
+    <div class="card" style="margin-bottom: 0; text-align: center; border-top: 4px solid #f59e0b;">
+        <span style="font-size: 0.85rem; color: #64748b; font-weight: 600; text-transform: uppercase;">Occupied Beds</span>
+        <div style="font-size: 2.25rem; font-weight: 700; color: #b45309; margin: 0.35rem 0;">
+            <%= occupiedBeds %>
+        </div>
+        <small style="color: #64748b;">Currently assigned residents</small>
+    </div>
+
+    <!-- Vacant Beds -->
+    <div class="card" style="margin-bottom: 0; text-align: center; border-top: 4px solid #10b981;">
+        <span style="font-size: 0.85rem; color: #64748b; font-weight: 600; text-transform: uppercase;">Vacant Beds</span>
+        <div style="font-size: 2.25rem; font-weight: 700; color: #047857; margin: 0.35rem 0;">
+            <%= vacantBeds %>
+        </div>
+        <small style="color: #64748b;">Available for allotment</small>
+    </div>
+
+    <!-- Pending Requests -->
+    <div class="card" style="margin-bottom: 0; text-align: center; border-top: 4px solid #ef4444;">
+        <span style="font-size: 0.85rem; color: #64748b; font-weight: 600; text-transform: uppercase;">Pending Requests</span>
+        <div style="font-size: 2.25rem; font-weight: 700; color: #b91c1c; margin: 0.35rem 0;">
+            <%= pendingRequestsCount %>
+        </div>
+        <small style="color: #64748b;">Awaiting warden review</small>
+    </div>
+</div>
+
+<!-- Block-Wise Occupancy Table -->
+<div class="card" style="margin-bottom: 2rem;">
+    <div class="card-header">
+        <h2 class="card-title">🏢 Block-Wise Occupancy Overview</h2>
+        <a href="/admin/rooms" class="btn btn-outline btn-sm">View All Rooms &rarr;</a>
+    </div>
+
+    <% if (blockStats.length === 0) { %>
+        <p style="color: #64748b; font-style: italic; padding: 1.5rem; text-align: center;">No rooms or blocks created yet.</p>
+    <% } else { %>
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th style="width: 25%;">Block</th>
+                        <th style="width: 15%;">Total Beds</th>
+                        <th style="width: 15%;">Occupied</th>
+                        <th style="width: 15%;">Vacant</th>
+                        <th style="width: 30%;">Occupancy Rate (%)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% blockStats.forEach(block => { %>
+                        <tr>
+                            <td><strong><%= block.name %></strong></td>
+                            <td><%= block.totalBeds %></td>
+                            <td><strong style="color: #b45309;"><%= block.occupiedBeds %></strong></td>
+                            <td><strong style="color: #047857;"><%= block.vacantBeds %></strong></td>
+                            <td>
+                                <div style="display: flex; align-items: center; gap: 0.75rem;">
+                                    <div style="flex: 1; background-color: #e2e8f0; border-radius: 9999px; height: 12px; overflow: hidden;">
+                                        <div style="height: 100%; width: <%= block.occupancyPercent %>%; background-color: <%= block.occupancyPercent >= 90 ? '#dc2626' : block.occupancyPercent >= 60 ? '#f59e0b' : '#16a34a' %>; transition: width 0.3s ease;"></div>
+                                    </div>
+                                    <span style="font-size: 0.85rem; font-weight: 600; min-width: 40px;"><%= block.occupancyPercent %>%</span>
+                                </div>
+                            </td>
+                        </tr>
+                    <% }); %>
+                </tbody>
+            </table>
+        </div>
+    <% } %>
+</div>
+
+<!-- Recent Pending Requests & Quick Links Grid -->
+<div class="grid-2" style="gap: 1.5rem;">
+    <!-- Recent Pending Requests (Latest 5) -->
+    <div class="card" style="margin-bottom: 0;">
+        <div class="card-header">
+            <h2 class="card-title">📬 Recent Pending Requests</h2>
+            <a href="/admin/requests" class="btn btn-outline btn-sm">All Requests (<%= pendingRequestsCount %>)</a>
+        </div>
+
+        <% if (recentPendingRequests.length === 0) { %>
+            <p style="color: #64748b; font-style: italic; padding: 1.5rem 0; text-align: center;">No pending requests waiting for review.</p>
+        <% } else { %>
+            <ul style="list-style: none; padding: 0;">
+                <% recentPendingRequests.forEach(reqItem => { %>
+                    <li style="padding: 0.85rem 0; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            <strong><%= reqItem.student ? reqItem.student.name : 'Unknown' %></strong>
+                            <span style="color: #64748b; font-size: 0.85rem;">(<%= reqItem.type.replace('_', ' ') %>)</span>
+                            <br>
+                            <small style="color: #64748b;"><%= reqItem.description ? reqItem.description.substring(0, 50) + '...' : '-' %></small>
+                        </div>
+                        <a href="/admin/requests" class="btn btn-primary btn-sm">Review</a>
+                    </li>
+                <% }); %>
+            </ul>
+        <% } %>
+    </div>
+
+    <!-- Quick Management Navigation Links -->
+    <div class="card" style="margin-bottom: 0;">
+        <div class="card-header">
+            <h2 class="card-title">⚡ Quick Management Links</h2>
+        </div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">
+            <a href="/admin/blocks" class="btn btn-outline" style="text-align: center; padding: 0.85rem 0.5rem;">
+                🏢 Manage Blocks
+            </a>
+            <a href="/admin/rooms" class="btn btn-outline" style="text-align: center; padding: 0.85rem 0.5rem;">
+                🛏️ Manage Rooms
+            </a>
+            <a href="/admin/requests" class="btn btn-outline" style="text-align: center; padding: 0.85rem 0.5rem;">
+                📬 Student Requests
+            </a>
+            <a href="/admin/students" class="btn btn-outline" style="text-align: center; padding: 0.85rem 0.5rem;">
+                👨‍🎓 Student Residents
+            </a>
+            <a href="/admin/menu" class="btn btn-outline" style="text-align: center; padding: 0.85rem 0.5rem;">
+                🍽️ Mess Menu
+            </a>
+            <a href="/admin/feedback" class="btn btn-outline" style="text-align: center; padding: 0.85rem 0.5rem;">
+                ⭐ Student Feedback
+            </a>
+        </div>
+    </div>
+</div>
+
+<%- include("../partials/footer") %>

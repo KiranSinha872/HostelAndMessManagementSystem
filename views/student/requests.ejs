@@ -1,0 +1,87 @@
+<%- include("../partials/header", { title: "My Requests" }) %>
+
+<div class="card">
+    <div class="card-header">
+        <h1 class="card-title">My Requests & Tickets</h1>
+        <a href="/student/requests/new" class="btn btn-primary btn-sm">➕ Raise New Request</a>
+    </div>
+
+    <!-- Feedback Alerts -->
+    <% if (typeof error !== 'undefined' && error) { %>
+        <div class="alert alert-danger">
+            <%= error %>
+        </div>
+    <% } %>
+
+    <% if (typeof success !== 'undefined' && success) { %>
+        <div class="alert alert-success">
+            <%= success %>
+        </div>
+    <% } %>
+
+    <% if (requests.length === 0) { %>
+        <div style="text-align: center; padding: 2.5rem; color: #64748b;">
+            <p style="font-size: 1.1rem; margin-bottom: 1rem;">You haven't submitted any requests yet.</p>
+            <a href="/student/requests/new" class="btn btn-outline">Submit Your First Request</a>
+        </div>
+    <% } else { %>
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Type</th>
+                        <th>Description / Details</th>
+                        <th>Submitted Date</th>
+                        <th>Status</th>
+                        <th>Warden Remark</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% requests.forEach(reqItem => { %>
+                        <tr>
+                            <td>
+                                <% if (reqItem.type === 'room_request') { %>
+                                    <span class="badge" style="background-color: #e0f2fe; color: #0369a1; border: 1px solid #bae6fd;">Room Allotment</span>
+                                <% } else if (reqItem.type === 'room_change') { %>
+                                    <span class="badge" style="background-color: #f3e8ff; color: #7e22ce; border: 1px solid #e9d5ff;">Room Change</span>
+                                <% } else { %>
+                                    <span class="badge" style="background-color: #ffedd5; color: #c2410c; border: 1px solid #fed7aa;">Maintenance</span>
+                                <% } %>
+                            </td>
+
+                            <td style="max-width: 320px;">
+                                <p style="margin: 0; font-size: 0.92rem;"><%= reqItem.description %></p>
+                            </td>
+
+                            <td style="white-space: nowrap; font-size: 0.85rem; color: #64748b;">
+                                <%= new Date(reqItem.createdAt).toLocaleDateString() %>
+                            </td>
+
+                            <td>
+                                <% if (reqItem.status === 'pending') { %>
+                                    <span class="badge badge-pending">Pending</span>
+                                <% } else if (reqItem.status === 'approved') { %>
+                                    <span class="badge badge-approved">Approved</span>
+                                <% } else if (reqItem.status === 'resolved') { %>
+                                    <span class="badge badge-resolved">Resolved</span>
+                                <% } else { %>
+                                    <span class="badge badge-rejected">Rejected</span>
+                                <% } %>
+                            </td>
+
+                            <td>
+                                <% if (reqItem.adminRemark) { %>
+                                    <span style="font-size: 0.88rem; color: #334155;"><%= reqItem.adminRemark %></span>
+                                <% } else { %>
+                                    <span style="color: #94a3b8; font-style: italic; font-size: 0.85rem;">Pending review</span>
+                                <% } %>
+                            </td>
+                        </tr>
+                    <% }); %>
+                </tbody>
+            </table>
+        </div>
+    <% } %>
+</div>
+
+<%- include("../partials/footer") %>

@@ -1,0 +1,64 @@
+<%- include("../partials/header", { title: "Raise New Request" }) %>
+
+<div class="card" style="max-width: 580px; margin: 2rem auto;">
+    <div class="card-header">
+        <h1 class="card-title">Raise Request / Ticket</h1>
+        <a href="/student/requests" class="btn btn-outline btn-sm">&larr; My Requests</a>
+    </div>
+
+    <!-- Feedback Alerts -->
+    <% if (typeof error !== 'undefined' && error) { %>
+        <div class="alert alert-danger">
+            <%= error %>
+        </div>
+    <% } %>
+
+    <% if (typeof success !== 'undefined' && success) { %>
+        <div class="alert alert-success">
+            <%= success %>
+        </div>
+    <% } %>
+
+    <% if (!hasRoom) { %>
+        <!-- Cannot submit if student has no room -->
+        <div style="background-color: #fff1f2; border: 1px solid #fecdd3; border-radius: 8px; padding: 1.5rem; text-align: center;">
+            <h3 style="color: #9f1239; margin-bottom: 0.5rem;">⚠️ No Room Allotted</h3>
+            <p style="color: #64748b; font-size: 0.95rem; margin-bottom: 1.25rem;">
+                You must have an active room allotment to request a room change or raise maintenance tickets for your room.
+            </p>
+            <a href="/student/room" class="btn btn-primary">Go to Room Allotment Page</a>
+        </div>
+    <% } else { %>
+        <!-- Current Room Badge -->
+        <div style="background-color: #eff6ff; border: 1px solid #bfdbfe; border-radius: 6px; padding: 0.75rem 1rem; margin-bottom: 1.25rem;">
+            <p style="font-size: 0.88rem; color: #1e40af;">
+                🏠 <strong>Current Room:</strong> <%= currentRoom.block ? currentRoom.block.name : 'Hostel' %> - Room <%= currentRoom.roomNumber %> (<%= currentRoom.type %>)
+            </p>
+        </div>
+
+        <form action="/student/requests/new" method="POST">
+            <div class="form-group">
+                <label for="type">Request Type</label>
+                <select id="type" name="type" class="form-control" required>
+                    <option value="room_change">🔄 Room Change (Request transfer to another room)</option>
+                    <option value="maintenance">🛠️ Room Maintenance (Electrical, plumbing, furniture repairs)</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="description">Reason / Problem Description</label>
+                <textarea 
+                    id="description" 
+                    name="description" 
+                    class="form-control" 
+                    placeholder="Describe your requirement in detail (e.g. Broken fan, leaking tap, request transfer due to study schedule)..." 
+                    required
+                ></textarea>
+            </div>
+
+            <button type="submit" class="btn btn-primary" style="width: 100%;">Submit Request to Warden</button>
+        </form>
+    <% } %>
+</div>
+
+<%- include("../partials/footer") %>

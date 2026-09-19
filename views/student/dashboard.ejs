@@ -1,0 +1,127 @@
+<%- include("../partials/header", { title: "Student Dashboard" }) %>
+
+<!-- Student Dashboard Welcome Banner -->
+<div class="card" style="margin-bottom: 2rem;">
+    <div class="card-header">
+        <h1 class="card-title">Student Resident Portal</h1>
+        <% if (student.room) { %>
+            <span class="badge badge-approved">Room Allotted</span>
+        <% } else { %>
+            <span class="badge badge-rejected">Room Not Allotted</span>
+        <% } %>
+    </div>
+    <h2 style="font-size: 1.5rem; color: #1e3a8a; margin-bottom: 0.5rem;">
+        Welcome, <%= student.name %>! 👋
+    </h2>
+    <p style="color: #64748b;">
+        Manage your hostel room allotment, track maintenance and transfer tickets, and view today's mess menu.
+    </p>
+</div>
+
+<!-- 3 Main Summary Cards -->
+<div class="grid-3" style="margin-bottom: 2rem;">
+    <!-- 1. My Room Card -->
+    <div class="card" style="margin-bottom: 0; display: flex; flex-direction: column; justify-content: space-between;">
+        <div>
+            <div class="card-header" style="margin-bottom: 0.75rem; padding-bottom: 0.5rem;">
+                <h3 style="font-size: 1.1rem; color: #1e3a8a;">🛏️ My Room</h3>
+            </div>
+            <% if (student.room) { %>
+                <div style="margin-bottom: 1rem;">
+                    <div style="font-size: 1.4rem; font-weight: 700; color: #1e3a8a; margin-bottom: 0.25rem;">
+                        <%= student.room.block ? student.room.block.name : 'Block' %> - <%= student.room.roomNumber %>
+                    </div>
+                    <span class="badge" style="background-color: #f1f5f9; color: #334155; border: 1px solid #cbd5e1;">
+                        <%= student.room.type %> Room
+                    </span>
+                    <p style="color: #64748b; font-size: 0.85rem; margin-top: 0.5rem;">
+                        Capacity: <%= student.room.capacity %> Beds (<%= student.room.occupied %> Occupied)
+                    </p>
+                </div>
+            <% } else { %>
+                <div style="margin-bottom: 1rem;">
+                    <div style="font-size: 1.4rem; font-weight: 700; color: #b91c1c; margin-bottom: 0.25rem;">
+                        Not Allotted
+                    </div>
+                    <p style="color: #64748b; font-size: 0.85rem;">
+                        You do not currently have an assigned hostel room.
+                    </p>
+                </div>
+            <% } %>
+        </div>
+        <a href="/student/room" class="btn btn-outline btn-sm" style="text-align: center;">
+            <%= student.room ? 'View Room & Roommates' : 'Request Room Allotment' %> &rarr;
+        </a>
+    </div>
+
+    <!-- 2. Pending Requests Card -->
+    <div class="card" style="margin-bottom: 0; display: flex; flex-direction: column; justify-content: space-between;">
+        <div>
+            <div class="card-header" style="margin-bottom: 0.75rem; padding-bottom: 0.5rem;">
+                <h3 style="font-size: 1.1rem; color: #1e3a8a;">📋 My Requests</h3>
+            </div>
+            <div style="margin-bottom: 1rem;">
+                <div style="font-size: 2rem; font-weight: 700; color: <%= pendingRequestsCount > 0 ? '#b45309' : '#1e3a8a' %>; margin-bottom: 0.25rem;">
+                    <%= pendingRequestsCount %>
+                </div>
+                <p style="color: #64748b; font-size: 0.85rem;">
+                    <%= pendingRequestsCount === 1 ? '1 active ticket pending warden review' : pendingRequestsCount + ' active tickets pending warden review' %>
+                </p>
+            </div>
+        </div>
+        <a href="/student/requests" class="btn btn-outline btn-sm" style="text-align: center;">
+            Track My Requests &rarr;
+        </a>
+    </div>
+
+    <!-- 3. Today's Menu Card -->
+    <div class="card" style="margin-bottom: 0; display: flex; flex-direction: column; justify-content: space-between;">
+        <div>
+            <div class="card-header" style="margin-bottom: 0.75rem; padding-bottom: 0.5rem;">
+                <h3 style="font-size: 1.1rem; color: #1e3a8a;">🍽️ Today's Menu</h3>
+                <span class="badge badge-pending" style="font-size: 0.7rem;"><%= today %></span>
+            </div>
+            <% if (todayMenu) { %>
+                <div style="font-size: 0.85rem; color: #334155; margin-bottom: 1rem; line-height: 1.5;">
+                    <p style="margin-bottom: 0.35rem;"><strong>🍳 Breakfast:</strong> <%= todayMenu.breakfast || 'Not updated' %></p>
+                    <p style="margin-bottom: 0.35rem;"><strong>🍛 Lunch:</strong> <%= todayMenu.lunch || 'Not updated' %></p>
+                    <p style="margin-bottom: 0.35rem;"><strong>☕ Snacks:</strong> <%= todayMenu.snacks || 'Not updated' %></p>
+                    <p style="margin-bottom: 0;"><strong>🍲 Dinner:</strong> <%= todayMenu.dinner || 'Not updated' %></p>
+                </div>
+            <% } else { %>
+                <div style="margin-bottom: 1rem; color: #64748b; font-style: italic; font-size: 0.9rem;">
+                    Menu has not been published for <%= today %> yet.
+                </div>
+            <% } %>
+        </div>
+        <a href="/student/menu" class="btn btn-outline btn-sm" style="text-align: center;">
+            Full Weekly Menu &rarr;
+        </a>
+    </div>
+</div>
+
+<!-- Quick Action Shortcuts -->
+<div class="card">
+    <div class="card-header">
+        <h3 class="card-title">⚡ Quick Shortcuts</h3>
+    </div>
+    <div class="grid-3" style="gap: 1rem;">
+        <% if (!student.room) { %>
+            <a href="/student/room" class="btn btn-primary" style="text-align: center; padding: 0.85rem 1rem;">
+                🛏️ Request a Room
+            </a>
+        <% } else { %>
+            <a href="/student/requests/new" class="btn btn-primary" style="text-align: center; padding: 0.85rem 1rem;">
+                🛠️ Raise Ticket / Room Change
+            </a>
+        <% } %>
+        <a href="/student/menu" class="btn btn-secondary" style="text-align: center; padding: 0.85rem 1rem;">
+            🍽️ Check Mess Schedule
+        </a>
+        <a href="/student/feedback" class="btn btn-secondary" style="text-align: center; padding: 0.85rem 1rem;">
+            ⭐ Submit Meal Feedback
+        </a>
+    </div>
+</div>
+
+<%- include("../partials/footer") %>

@@ -1,0 +1,17 @@
+<%- include("partials/header", { title: "Error" }) %>
+
+<!-- Generic Error / 404 Display Card -->
+<div class="card" style="text-align: center; padding: 3rem 1.5rem; max-width: 600px; margin: 3rem auto;">
+    <h1 style="font-size: 3rem; color: #dc2626; margin-bottom: 0.5rem;">
+        <%= typeof status !== 'undefined' ? status : 'Oops!' %>
+    </h1>
+    <h2 style="font-size: 1.5rem; color: #1e293b; margin-bottom: 1rem;">
+        <%= typeof message !== 'undefined' ? message : 'Something went wrong' %>
+    </h2>
+    <p style="color: #64748b; margin-bottom: 2rem;">
+        The page you are looking for might have been removed, had its name changed, or is temporarily unavailable.
+    </p>
+    <a href="/" class="btn btn-primary">Return to Home</a>
+</div>
+
+<%- include("partials/footer") %>

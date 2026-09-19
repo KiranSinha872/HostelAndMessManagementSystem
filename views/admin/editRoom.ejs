@@ -1,0 +1,78 @@
+<%- include("../partials/header", { title: "Edit Room" }) %>
+
+<div class="card" style="max-width: 550px; margin: 2rem auto;">
+    <div class="card-header">
+        <h1 class="card-title">Edit Room <%= room.roomNumber %></h1>
+        <a href="/admin/rooms" class="btn btn-outline btn-sm">&larr; Back to Rooms</a>
+    </div>
+
+    <!-- Error Alerts -->
+    <% if (typeof error !== 'undefined' && error) { %>
+        <div class="alert alert-danger">
+            <%= error %>
+        </div>
+    <% } %>
+
+    <% if (typeof success !== 'undefined' && success) { %>
+        <div class="alert alert-success">
+            <%= success %>
+        </div>
+    <% } %>
+
+    <!-- Occupancy Notice -->
+    <div style="background-color: #eff6ff; border: 1px solid #bfdbfe; border-radius: 6px; padding: 0.75rem 1rem; margin-bottom: 1.25rem;">
+        <p style="font-size: 0.88rem; color: #1e40af;">
+            ℹ️ <strong>Current Occupancy:</strong> <%= room.occupied %> bed<%= room.occupied === 1 ? '' : 's' %> currently assigned.
+            <br>
+            <span style="color: #64748b;">Capacity cannot be set lower than <%= room.occupied %>.</span>
+        </p>
+    </div>
+
+    <form action="/admin/rooms/<%= room._id %>/update" method="POST">
+        <div class="form-group">
+            <label for="block">Hostel Block</label>
+            <select id="block" name="block" class="form-control" required>
+                <% blocks.forEach(b => { %>
+                    <option value="<%= b._id %>" <%= room.block && room.block._id.toString() === b._id.toString() ? 'selected' : '' %>>
+                        <%= b.name %>
+                    </option>
+                <% }); %>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="roomNumber">Room Number</label>
+            <input type="text" id="roomNumber" name="roomNumber" class="form-control" value="<%= room.roomNumber %>" required>
+        </div>
+
+        <div class="form-group">
+            <label for="type">Room Type</label>
+            <select id="type" name="type" class="form-control" required>
+                <option value="Single" <%= room.type === 'Single' ? 'selected' : '' %>>Single</option>
+                <option value="Double" <%= room.type === 'Double' ? 'selected' : '' %>>Double</option>
+                <option value="Triple" <%= room.type === 'Triple' ? 'selected' : '' %>>Triple</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="capacity">Total Capacity (Beds)</label>
+            <input 
+                type="number" 
+                id="capacity" 
+                name="capacity" 
+                class="form-control" 
+                min="<%= room.occupied > 0 ? room.occupied : 1 %>" 
+                value="<%= room.capacity %>" 
+                required
+            >
+            <small style="color: #64748b; font-size: 0.8rem;">Minimum allowed: <%= room.occupied > 0 ? room.occupied : 1 %></small>
+        </div>
+
+        <div style="display: flex; gap: 1rem; margin-top: 1.5rem;">
+            <button type="submit" class="btn btn-primary" style="flex: 1;">Save Changes</button>
+            <a href="/admin/rooms" class="btn btn-secondary" style="text-align: center;">Cancel</a>
+        </div>
+    </form>
+</div>
+
+<%- include("../partials/footer") %>

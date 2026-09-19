@@ -1,0 +1,132 @@
+<%- include("../partials/header", { title: "Mess Feedback" }) %>
+
+<div class="card" style="margin-bottom: 2rem;">
+    <div class="card-header">
+        <h1 class="card-title">Submit Mess Feedback</h1>
+        <a href="/student/menu" class="btn btn-outline btn-sm">&larr; View Menu</a>
+    </div>
+
+    <!-- Feedback Alerts -->
+    <% if (typeof error !== 'undefined' && error) { %>
+        <div class="alert alert-danger">
+            <%= error %>
+        </div>
+    <% } %>
+
+    <% if (typeof success !== 'undefined' && success) { %>
+        <div class="alert alert-success">
+            <%= success %>
+        </div>
+    <% } %>
+
+    <p style="color: #64748b; margin-bottom: 1.5rem;">
+        Rate your dining experience to help the mess committee improve food quality and hygiene.
+    </p>
+
+    <!-- Feedback Form -->
+    <form action="/student/feedback" method="POST" style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 1.5rem;">
+        <div class="grid-3" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 1.25rem;">
+            <div class="form-group" style="margin-bottom: 0;">
+                <label for="day">Select Day</label>
+                <select id="day" name="day" class="form-control" required>
+                    <% const days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]; %>
+                    <% days.forEach(d => { %>
+                        <option value="<%= d %>" <%= d === today ? 'selected' : '' %>><%= d %></option>
+                    <% }); %>
+                </select>
+            </div>
+
+            <div class="form-group" style="margin-bottom: 0;">
+                <label for="meal">Meal Type</label>
+                <select id="meal" name="meal" class="form-control" required>
+                    <option value="breakfast">Breakfast</option>
+                    <option value="lunch" selected>Lunch</option>
+                    <option value="snacks">Evening Snacks</option>
+                    <option value="dinner">Dinner</option>
+                </select>
+            </div>
+
+            <div class="form-group" style="margin-bottom: 0;">
+                <label for="rating">Rating (1 to 5 Stars)</label>
+                <select id="rating" name="rating" class="form-control" required>
+                    <option value="5">⭐⭐⭐⭐⭐ 5 - Excellent</option>
+                    <option value="4" selected>⭐⭐⭐⭐ 4 - Good</option>
+                    <option value="3">⭐⭐⭐ 3 - Average</option>
+                    <option value="2">⭐⭐ 2 - Below Average</option>
+                    <option value="1">⭐ 1 - Poor</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="comment">Comments / Suggestions (Optional)</label>
+            <textarea 
+                id="comment" 
+                name="comment" 
+                class="form-control" 
+                placeholder="Share your thoughts on taste, freshness, hygiene, or quantity..."
+            ></textarea>
+        </div>
+
+        <button type="submit" class="btn btn-primary" style="padding: 0.65rem 1.5rem;">
+            Submit Feedback
+        </button>
+    </form>
+</div>
+
+<!-- Past Feedback Table -->
+<div class="card">
+    <div class="card-header">
+        <h2 class="card-title">My Past Feedback</h2>
+        <span class="badge" style="background-color: #f1f5f9; color: #475569; border: 1px solid #cbd5e1;">
+            Total: <%= feedbacks.length %>
+        </span>
+    </div>
+
+    <% if (feedbacks.length === 0) { %>
+        <p style="color: #64748b; font-style: italic; padding: 2rem; text-align: center;">You have not submitted any mess feedback yet.</p>
+    <% } else { %>
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Day</th>
+                        <th>Meal</th>
+                        <th>Rating</th>
+                        <th>Comments</th>
+                        <th>Submitted Date</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% feedbacks.forEach(fb => { %>
+                        <tr>
+                            <td><strong><%= fb.day %></strong></td>
+
+                            <td>
+                                <span class="badge" style="text-transform: capitalize; background-color: #f1f5f9; color: #334155; border: 1px solid #cbd5e1;">
+                                    <%= fb.meal %>
+                                </span>
+                            </td>
+
+                            <td>
+                                <span style="font-weight: 600; color: <%= fb.rating >= 4 ? '#16a34a' : fb.rating === 3 ? '#d97706' : '#dc2626' %>;">
+                                    ⭐ <%= fb.rating %> / 5
+                                </span>
+                            </td>
+
+                            <td style="max-width: 320px;">
+                                <p style="margin: 0; font-size: 0.9rem;"><%= fb.comment || '-' %></p>
+                            </td>
+
+                            <td style="white-space: nowrap; font-size: 0.85rem; color: #64748b;">
+                                <%= new Date(fb.createdAt).toLocaleDateString() %>
+                            </td>
+                        </tr>
+                    <% }); %>
+                </tbody>
+            </table>
+        </div>
+    <% } %>
+</div>
+
+<%- include("../partials/footer") %>

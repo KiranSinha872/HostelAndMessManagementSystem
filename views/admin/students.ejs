@@ -1,0 +1,72 @@
+<%- include("../partials/header", { title: "Student Residents" }) %>
+
+<div class="card">
+    <div class="card-header">
+        <h1 class="card-title">Registered Students & Room Status</h1>
+        <span class="badge" style="background-color: #f1f5f9; color: #475569; border: 1px solid #cbd5e1;">
+            Total: <%= students.length %> Student<%= students.length === 1 ? '' : 's' %>
+        </span>
+    </div>
+
+    <!-- Feedback Alerts -->
+    <% if (typeof error !== 'undefined' && error) { %>
+        <div class="alert alert-danger">
+            <%= error %>
+        </div>
+    <% } %>
+
+    <% if (typeof success !== 'undefined' && success) { %>
+        <div class="alert alert-success">
+            <%= success %>
+        </div>
+    <% } %>
+
+    <% if (students.length === 0) { %>
+        <p style="color: #64748b; font-style: italic; padding: 2rem; text-align: center;">No registered students found.</p>
+    <% } else { %>
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Student Name</th>
+                        <th>Email Address</th>
+                        <th>Allotted Room</th>
+                        <th>Joined Date</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% students.forEach(student => { %>
+                        <tr>
+                            <td><strong><%= student.name %></strong></td>
+                            <td style="color: #475569;"><%= student.email %></td>
+                            <td>
+                                <% if (student.room) { %>
+                                    <span class="badge badge-approved">
+                                        🏢 <%= student.room.block ? student.room.block.name : 'Block' %> - Room <%= student.room.roomNumber %> (<%= student.room.type %>)
+                                    </span>
+                                <% } else { %>
+                                    <span class="badge badge-rejected">Not Allotted</span>
+                                <% } %>
+                            </td>
+                            <td style="color: #64748b; font-size: 0.85rem;">
+                                <%= new Date(student.createdAt).toLocaleDateString() %>
+                            </td>
+                            <td>
+                                <% if (student.room) { %>
+                                    <form action="/admin/students/<%= student._id %>/vacate" method="POST" style="display: inline;" onsubmit="return confirm('Are you sure you want to vacate <%= student.name %> from Room <%= student.room.roomNumber %>?');">
+                                        <button type="submit" class="btn btn-danger btn-sm">Vacate</button>
+                                    </form>
+                                <% } else { %>
+                                    <span style="color: #94a3b8; font-size: 0.85rem;">No action</span>
+                                <% } %>
+                            </td>
+                        </tr>
+                    <% }); %>
+                </tbody>
+            </table>
+        </div>
+    <% } %>
+</div>
+
+<%- include("../partials/footer") %>

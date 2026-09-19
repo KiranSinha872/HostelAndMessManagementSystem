@@ -1,0 +1,76 @@
+<%- include("../partials/header", { title: "Manage Blocks" }) %>
+
+<div class="card">
+    <div class="card-header">
+        <h1 class="card-title">Hostel Blocks</h1>
+        <a href="/admin/rooms" class="btn btn-outline btn-sm">Go to Rooms &rarr;</a>
+    </div>
+
+    <!-- Feedback Alerts -->
+    <% if (typeof error !== 'undefined' && error) { %>
+        <div class="alert alert-danger">
+            <%= error %>
+        </div>
+    <% } %>
+
+    <% if (typeof success !== 'undefined' && success) { %>
+        <div class="alert alert-success">
+            <%= success %>
+        </div>
+    <% } %>
+
+    <!-- Add Block Form -->
+    <div style="background-color: #f8fafc; padding: 1.25rem; border-radius: 8px; border: 1px solid #e2e8f0; margin-bottom: 2rem;">
+        <h3 style="font-size: 1.1rem; color: #1e3a8a; margin-bottom: 1rem;">➕ Add New Hostel Block</h3>
+        <form action="/admin/blocks" method="POST" style="display: grid; grid-template-columns: 1fr 2fr auto; gap: 1rem; align-items: end;">
+            <div class="form-group" style="margin-bottom: 0;">
+                <label for="name">Block Name</label>
+                <input type="text" id="name" name="name" class="form-control" placeholder="e.g. Block A / Aryabhatta" required>
+            </div>
+            <div class="form-group" style="margin-bottom: 0;">
+                <label for="description">Description / Notes</label>
+                <input type="text" id="description" name="description" class="form-control" placeholder="e.g. 1st Year Engineering Wing">
+            </div>
+            <button type="submit" class="btn btn-primary" style="height: 42px;">Add Block</button>
+        </form>
+    </div>
+
+    <!-- Blocks Table -->
+    <h3 style="font-size: 1.1rem; color: #1e3a8a; margin-bottom: 0.75rem;">Existing Blocks</h3>
+    <% if (blocks.length === 0) { %>
+        <p style="color: #64748b; font-style: italic;">No blocks added yet. Use the form above to add your first hostel block.</p>
+    <% } else { %>
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Block Name</th>
+                        <th>Description</th>
+                        <th>Total Rooms</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% blocks.forEach(block => { %>
+                        <tr>
+                            <td><strong><%= block.name %></strong></td>
+                            <td style="color: #64748b;"><%= block.description || '-' %></td>
+                            <td>
+                                <span class="badge" style="background-color: #e0f2fe; color: #0369a1; border: 1px solid #bae6fd;">
+                                    <%= block.roomCount %> Room<%= block.roomCount === 1 ? '' : 's' %>
+                                </span>
+                            </td>
+                            <td>
+                                <form action="/admin/blocks/<%= block._id %>/delete" method="POST" style="display: inline;" onsubmit="return confirm('Are you sure you want to delete this block?');">
+                                    <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                                </form>
+                            </td>
+                        </tr>
+                    <% }); %>
+                </tbody>
+            </table>
+        </div>
+    <% } %>
+</div>
+
+<%- include("../partials/footer") %>
