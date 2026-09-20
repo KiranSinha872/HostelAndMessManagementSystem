@@ -2,6 +2,7 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const mongoose = require("mongoose");
 const User = require("../models/User");
+const connectDB = require("../config/db");
 
 // Helper to determine if an error is connection-related
 const isDbConnectionError = (err) => {
@@ -60,6 +61,15 @@ const postRegister = async (req, res) => {
                 error: "Passwords do not match.",
                 values: { name, email }
             });
+        }
+
+        // Ensure database connection is active (handles serverless cold starts)
+        if (mongoose.connection.readyState !== 1) {
+            try {
+                await connectDB();
+            } catch (connErr) {
+                console.warn("DB reconnection attempt failed during registration:", connErr.message);
+            }
         }
 
         // Check if database is connected
@@ -142,6 +152,15 @@ const postLogin = async (req, res) => {
                 error: "Please provide both email and password.",
                 values: { email }
             });
+        }
+
+        // Ensure database connection is active (handles serverless cold starts)
+        if (mongoose.connection.readyState !== 1) {
+            try {
+                await connectDB();
+            } catch (connErr) {
+                console.warn("DB reconnection attempt failed during login:", connErr.message);
+            }
         }
 
         // Check if database is connected

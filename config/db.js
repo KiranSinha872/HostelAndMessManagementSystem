@@ -23,9 +23,11 @@ const connectDB = async () => {
         throw new Error(errorMsg);
     }
 
-    // 3. Initiate new connection with fast timeout (5s)
+    // 3. Initiate new connection with resilient timeout for serverless
     cachedPromise = mongoose.connect(process.env.MONGO_URI, {
-        serverSelectionTimeoutMS: 5000,
+        serverSelectionTimeoutMS: 10000,
+        connectTimeoutMS: 10000,
+        maxPoolSize: 10
     }).then((m) => {
         console.log("MongoDB connected:", m.connection.host);
         return m;
