@@ -5,7 +5,7 @@ A full-stack web application designed for college hostel administrations to auto
 ---
 
 ## 🌐 Live URL
-> **Live URL:** `https://your-hostel-app.onrender.com` *(Replace with your deployed URL)*
+> **Live URL:** [https://hostelmessmanagement.vercel.app](https://hostelmessmanagement.vercel.app)
 
 ---
 
