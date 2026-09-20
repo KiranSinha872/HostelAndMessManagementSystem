@@ -1,6 +1,24 @@
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
+const mongoose = require("mongoose");
 const User = require("../models/User");
+
+// Helper to determine if an error is connection-related
+const isDbConnectionError = (err) => {
+    if (!err) return false;
+    const msg = (err.message || "").toLowerCase();
+    return (
+        msg.includes("buffercommands") ||
+        msg.includes("buffering") ||
+        msg.includes("timed out") ||
+        msg.includes("enotfound") ||
+        msg.includes("server selection") ||
+        msg.includes("connection")
+    );
+};
+
+const DB_ERROR_MESSAGE =
+    "Database connection unavailable. Please ensure MONGO_URI is configured in Vercel environment variables and 0.0.0.0/0 is allowed in MongoDB Atlas Network Access.";
 
 // ==========================================
 // 1. GET /register
@@ -44,6 +62,15 @@ const postRegister = async (req, res) => {
             });
         }
 
+        // Check if database is connected
+        if (mongoose.connection.readyState !== 1) {
+            return res.render("auth/register", {
+                title: "Student Registration",
+                error: DB_ERROR_MESSAGE,
+                values: { name, email }
+            });
+        }
+
         // Validation: Email uniqueness
         const existingUser = await User.findOne({ email: email.toLowerCase().trim() });
         if (existingUser) {
@@ -72,9 +99,13 @@ const postRegister = async (req, res) => {
 
     } catch (err) {
         console.error("Registration error:", err.message);
+        const errorMsg = isDbConnectionError(err)
+            ? DB_ERROR_MESSAGE
+            : "An error occurred during registration. Please try again.";
+
         res.render("auth/register", {
             title: "Student Registration",
-            error: "An error occurred during registration. Please try again.",
+            error: errorMsg,
             values: req.body
         });
     }
@@ -109,6 +140,15 @@ const postLogin = async (req, res) => {
             return res.render("auth/login", {
                 title: "Login",
                 error: "Please provide both email and password.",
+                values: { email }
+            });
+        }
+
+        // Check if database is connected
+        if (mongoose.connection.readyState !== 1) {
+            return res.render("auth/login", {
+                title: "Login",
+                error: DB_ERROR_MESSAGE,
                 values: { email }
             });
         }
@@ -160,9 +200,13 @@ const postLogin = async (req, res) => {
 
     } catch (err) {
         console.error("Login error:", err.message);
+        const errorMsg = isDbConnectionError(err)
+            ? DB_ERROR_MESSAGE
+            : "An unexpected error occurred. Please try again.";
+
         res.render("auth/login", {
             title: "Login",
-            error: "An unexpected error occurred. Please try again.",
+            error: errorMsg,
             values: req.body
         });
     }

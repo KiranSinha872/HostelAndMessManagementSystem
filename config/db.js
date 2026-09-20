@@ -1,5 +1,8 @@
 const mongoose = require("mongoose");
 
+// Prevent indefinite buffering when disconnected (fails fast instead of hanging 10s)
+mongoose.set("bufferCommands", false);
+
 // Cache connection promise across serverless invocations
 let cachedPromise = null;
 
@@ -15,8 +18,9 @@ const connectDB = async () => {
     }
 
     if (!process.env.MONGO_URI) {
-        console.log("MongoDB connection skipped: MONGO_URI not set in environment");
-        return;
+        const errorMsg = "MongoDB connection error: MONGO_URI is not set in environment variables.";
+        console.warn(errorMsg);
+        throw new Error(errorMsg);
     }
 
     // 3. Initiate new connection with fast timeout (5s)

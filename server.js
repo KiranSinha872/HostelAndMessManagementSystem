@@ -9,7 +9,9 @@ const jwt = require("jsonwebtoken");
 
 // Connect to MongoDB Atlas
 const connectDB = require("./config/db");
-connectDB();
+connectDB().catch((err) => {
+    console.warn("Initial DB connection warning:", err.message);
+});
 
 // Initialize Express App
 const app = express();
@@ -55,7 +57,11 @@ const adminRoutes = require("./routes/adminRoutes");
 
 // Ensure database connection is active before routes (serverless cold start safe)
 app.use(async (req, res, next) => {
-    await connectDB();
+    try {
+        await connectDB();
+    } catch (err) {
+        console.warn("Database connection middleware warning:", err.message);
+    }
     next();
 });
 
